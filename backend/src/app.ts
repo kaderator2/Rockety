@@ -1,9 +1,12 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import authRoutes from './routes/auth';
+import protectedRoutes from './routes/protected';
 
+const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
-const routes = require('./routes');
+app.use(cors());
 
 // Middleware
 app.use(express.json());
@@ -18,14 +21,13 @@ mongoose.connect(mongoURI)
         console.error('Error connecting to MongoDB:', error);
     });
 
-// Routes
-app.get('/', (req, res) => {
-    res.send('Hello, World!');
-});
+// Auth routes
+app.use('/auth', authRoutes);
 
+// Protected routes
+app.use('/api', protectedRoutes);
 
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
-app.use('/api/', routes);

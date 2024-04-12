@@ -1,123 +1,62 @@
 import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
 import { useNavigate, Link } from 'react-router-dom';
+import axios, { AxiosError } from 'axios';
+import {
+    Container,
+    Content,
+    Title,
+    LoginForm,
+    FormGroup,
+    Label,
+    Input,
+    LoginButton,
+    CreateAccountLink,
+    ForgotPasswordLink,
+    ErrorMessage,
+} from './StyledComponents';
 
-const gradientAnimation = keyframes`
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-`;
-
-const fadeIn = keyframes`
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  color: #ffffff;
-  flex: 1;
-  background: linear-gradient(45deg, #ff7f50, #6a5acd, #00ced1, #00ff7f);
-  background-size: 400% 400%;
-  animation: ${gradientAnimation} 15s ease infinite;
-`;
-
-const Content = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: ${fadeIn} 1s ease;
-`;
-
-const Title = styled.h1`
-  font-size: 3rem;
-  margin-bottom: 2rem;
-`;
-
-const LoginForm = styled.form`
-  background-color: rgba(42, 42, 42, 0.8);
-  padding: 2rem;
-  border-radius: 10px;
-  max-width: 400px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1.5rem;
-`;
-
-const Label = styled.label`
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-`;
-
-const Input = styled.input`
-  padding: 0.5rem;
-  font-size: 1rem;
-  border-radius: 5px;
-  border: none;
-`;
-
-const LoginButton = styled.button`
-  background-color: #63b3ed;
-  color: #ffffff;
-  padding: 1rem 2rem;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background-color: #4299e1;
-  }
-`;
-
-const CreateAccountLink = styled(Link)`
-  color: #63b3ed;
-  text-decoration: none;
-  margin-top: 1rem;
-  transition: color 0.3s;
-
-  &:hover {
-    color: #4299e1;
-  }
-`;
+axios.defaults.baseURL = "http://localhost:5000/";
 
 interface LoginProps {
-    onLogin: () => void;
+    onLogin: (token: string) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Perform login logic here
-        console.log('Login submitted');
-        onLogin(); // Call the onLogin function passed from App.tsx
-        navigate('/');
+
+        try {
+            const response = await axios.post('/auth/login', { email, password });
+            const { token } = response.data;
+
+            // Store the token in local storage or session storage
+            localStorage.setItem('token', token);
+
+            // Call the onLogin function passed from App.tsx with the token
+            onLogin(token);
+
+            // Clear the form fields and error message
+            setEmail('');
+            setPassword('');
+            setError('');
+
+            // Redirect to the desired page after successful login
+            navigate('/');
+        } catch (error) {
+            console.error('Login failed:', error);
+
+            const axiosError = error as AxiosError;
+            if (axiosError.response && axiosError.response.status === 401) {
+                setError('Invalid email or password');
+            } else {
+                setError('An error occurred. Please try again.');
+            }
+        }
     };
 
     return (
@@ -145,8 +84,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                             required
                         />
                     </FormGroup>
+                    {error && <ErrorMessage>{error}</ErrorMessage>}
                     <LoginButton type="submit">Login</LoginButton>
                 </LoginForm>
+                <ForgotPasswordLink to="/forgot-password">
+                    Forgot password?
+                </ForgotPasswordLink>
                 <CreateAccountLink to="/create-account">
                     Don't have an account? Create one here
                 </CreateAccountLink>

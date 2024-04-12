@@ -1,29 +1,8 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
-
-const gradientAnimation = keyframes`
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  color: #ffffff;
-  flex: 1;
-  background: linear-gradient(45deg, #ff7f50, #6a5acd, #00ced1, #00ff7f);
-  background-size: 400% 400%;
-  animation: ${gradientAnimation} 15s ease infinite;
-`;
+import {
+    Container,
+} from './StyledComponents';
 
 const Content = styled.div`
   flex: 1;
