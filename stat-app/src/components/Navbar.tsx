@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -66,12 +66,18 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, setIsLoggedIn }) => {
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            setIsLoggedIn(true);
+        }
+    }, [setIsLoggedIn]);
+
     const handleLogin = () => {
         navigate('/login');
     };
 
     const handleLogout = () => {
-        // Perform logout logic here
         localStorage.removeItem('token');
         setIsLoggedIn(false);
         navigate('/login');

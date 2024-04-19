@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import User, { IUser } from '../models/user';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
+import nodemailer from 'nodemailer';
 
 const router = express.Router();
 
@@ -18,7 +19,9 @@ const loginLimiter = rateLimit({
 
 // Rate limiter configuration for forgot password
 const forgotPasswordLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    // TODO: CHANGE ME BACK BEFORE DEPLOYMENT
+    // windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 10, // 15 minutes
     max: 5, // Limit each IP to 5 forgot password requests per window
     message: 'Too many forgot password requests. Please try again later.',
 });
@@ -96,13 +99,72 @@ router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
         user.resetToken = resetToken;
         await user.save();
 
-        // Send the password reset email to the user
-        // You can use an email service like Nodemailer or SendGrid to send the email
-        // The email should include a link with the reset token, e.g., https://your-app.com/reset-password?token=resetToken
+        // Create a Nodemailer transporter
+        const transporter = nodemailer.createTransport({
+            // Configure your email service provider (e.g., Gmail, SendGrid, etc.)
+            // Example configuration for Gmail:
+            service: 'gmail',
+            auth: {
+                user: 'amazoncraftteam@gmail.com',
+                pass: 'xcbd mqap wcss wonn',
+            },
+        });
+
+        // Compose the password reset email
+        // TODO: CHANGE ME BEFORE PRODUCTION
+        const mailOptions = {
+            from: 'Rockety Support',
+            to: user.email,
+            subject: 'Rockety Password Reset',
+            html: `
+                <p>Hello,</p>
+                <p>You have requested to reset your password. Please click the link below to reset your password:</p>
+                <a href="http://localhost:3000/reset-password?token=${resetToken}">Reset Password</a>
+                <p>If you did not request a password reset, please ignore this email.</p>
+            `,
+        };
+
+        // Send the password reset email
+        await transporter.sendMail(mailOptions);
 
         res.json({ message: 'Password reset email sent' });
     } catch (error) {
         console.error('Error sending password reset email:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Reset password route
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { token, password } = req.body;
+
+        // Verify the reset token
+        const decodedToken = jwt.verify(token, 'your_reset_token_secret') as { userId: string };
+        const userId = decodedToken.userId;
+
+        // Find the user by ID
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the reset token matches the user's stored token
+        if (user.resetToken !== token) {
+            return res.status(400).json({ message: 'Invalid or expired reset token' });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Update the user's password and clear the reset token
+        user.password = hashedPassword;
+        user.resetToken = undefined;
+        await user.save();
+
+        res.json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Error resetting password:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

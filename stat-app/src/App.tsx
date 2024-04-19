@@ -12,6 +12,8 @@ import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import Login from './components/Login';
 import CreateAccount from './components/CreateAccount';
 import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
+import AccountPage from './components/AccountPage';
 
 const AppContainer = styled.div`
   display: flex;
@@ -39,6 +41,8 @@ const App: React.FC = () => {
                     <Route path="/privacy" element={<PrivacyPolicyPage />} />
                     <Route path="/create-account" element={<CreateAccount />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/account" element={<AccountPage />} />
                     {/* Add other routes */}
                 </Routes>
                 <Footer />
