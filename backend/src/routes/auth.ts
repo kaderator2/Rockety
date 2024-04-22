@@ -5,23 +5,20 @@ import User, { IUser } from '../models/user';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import nodemailer from 'nodemailer';
+import endpoint from '../endpoints.config';
 
 const router = express.Router();
 
 // Rate limiter configuration
 const loginLimiter = rateLimit({
-    // TODO: CHANGE ME BACK BEFORE DEPLOYMENT
-    // windowMs: 15 * 60 * 1000, // 15 minutes
-    windowMs: 10, // 15 minutes
+    windowMs: parseInt(endpoint.LoginCooldown),
     max: 5, // Limit each IP to 5 login requests per window
     message: 'Too many login attempts. Please try again later.',
 });
 
 // Rate limiter configuration for forgot password
 const forgotPasswordLimiter = rateLimit({
-    // TODO: CHANGE ME BACK BEFORE DEPLOYMENT
-    // windowMs: 15 * 60 * 1000, // 15 minutes
-    windowMs: 10, // 15 minutes
+    windowMs: parseInt(endpoint.FPassCooldown),
     max: 5, // Limit each IP to 5 forgot password requests per window
     message: 'Too many forgot password requests. Please try again later.',
 });
@@ -72,7 +69,7 @@ router.post('/login', loginLimiter, async (req, res) => {
         }
 
         // Generate a JWT token
-        const token = jwt.sign({ userId: user._id }, 'your_jwt_secret');
+        const token = jwt.sign({ userId: user._id }, endpoint.JWTSecret);
 
         res.json({ token });
     } catch (error) {
@@ -93,7 +90,7 @@ router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
         }
 
         // Generate a password reset token
-        const resetToken = jwt.sign({ userId: user._id }, 'your_reset_token_secret', { expiresIn: '1h' });
+        const resetToken = jwt.sign({ userId: user._id }, endpoint.ResetTokenSecret, { expiresIn: '1h' });
 
         // Save the reset token to the user document in the database
         user.resetToken = resetToken;
@@ -101,12 +98,11 @@ router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
 
         // Create a Nodemailer transporter
         const transporter = nodemailer.createTransport({
-            // Configure your email service provider (e.g., Gmail, SendGrid, etc.)
             // Example configuration for Gmail:
-            service: 'gmail',
+            service: endpoint.emailService,
             auth: {
-                user: 'amazoncraftteam@gmail.com',
-                pass: 'xcbd mqap wcss wonn',
+                user: endpoint.emailUser,
+                pass: endpoint.emailPassword,
             },
         });
 
@@ -119,7 +115,7 @@ router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
             html: `
                 <p>Hello,</p>
                 <p>You have requested to reset your password. Please click the link below to reset your password:</p>
-                <a href="http://localhost:3000/reset-password?token=${resetToken}">Reset Password</a>
+                <a href="${endpoint.BaseUrl}/reset-password?token=${resetToken}">Reset Password</a>
                 <p>If you did not request a password reset, please ignore this email.</p>
             `,
         };
@@ -140,7 +136,7 @@ router.post('/reset-password', async (req, res) => {
         const { token, password } = req.body;
 
         // Verify the reset token
-        const decodedToken = jwt.verify(token, 'your_reset_token_secret') as { userId: string };
+        const decodedToken = jwt.verify(token, endpoint.ResetTokenSecret) as { userId: string };
         const userId = decodedToken.userId;
 
         // Find the user by ID

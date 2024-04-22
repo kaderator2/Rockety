@@ -9,7 +9,7 @@ export interface IUser extends Document {
     profilePicture: string;
     replays: ReplayFile[];
     team: string;
-    // Add more fields as needed for esports statistics
+    username: string;
 }
 
 const userSchema: Schema = new Schema({
@@ -19,7 +19,7 @@ const userSchema: Schema = new Schema({
     profilePicture: { type: String },
     replays: [{ type: Object }],
     team: { type: String },
-    // Add more fields as needed for esports statistics
+    username: { type: String, unique: true },
 });
 
 export default mongoose.model<IUser>('User', userSchema);
