@@ -43,6 +43,7 @@ const App: React.FC = () => {
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/account" element={<AccountPage />} />
+                    <Route path="*" element={<div />} />
                     {/* Add other routes */}
                 </Routes>
                 <Footer />
