@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { logger } from './src/logger'
 import mongoose from 'mongoose';
 import User, { IUser } from './src/models/user';
 import { ReplayData } from './src/models/replayFile';
@@ -30,7 +31,6 @@ const processReplayFile = async (replayFilePath: string) => {
         if (user) {
             // Update the replay data in the user's account
             const replayIndex = user.replays.findIndex((replay) => replay.path === replayFileNameFormatted);
-            console.log(replayIndex);
             if (replayIndex !== -1) {
                 user.replays[replayIndex].data = replayData;
                 user.replays[replayIndex].processed = true;
@@ -43,24 +43,24 @@ const processReplayFile = async (replayFilePath: string) => {
                         },
                     }
                 );
-                console.log(`Replay data stored for user: ${user.email}`);
+                logger.info(`Replay data stored for user: ${user.email}`);
             }
         }
         // Delete the original replay file and the parsed JSON file
         await fs.promises.unlink(replayFilePath);
         await fs.promises.unlink(parsedFilePath);
-        console.log(`Replay file ${replayFileName} processed and deleted`);
+        logger.info(`Replay file ${replayFileName} processed and deleted`);
     } catch (error) {
         //TODO: Maybe remove me?
         await fs.promises.unlink(replayFilePath);
-        console.error(`Error processing replay file: ${(error as Error).message}`);
+        logger.error(`Error processing replay file: ${(error as Error).message}`);
     }
 };
 
 const scanForNewReplayFiles = async (uploadsPath: string) => {
     fs.readdir(uploadsPath, async (err, files) => {
         if (err) {
-            console.error('Error reading uploads directory:', err);
+            logger.error('Error reading uploads directory:', err);
             return;
         }
 
@@ -77,14 +77,14 @@ const watchReplayFiles = async () => {
     const uploadsPath = path.join(__dirname, 'uploads');
 
     // Debug: Check the uploads directory path
-    console.log('Uploads directory path:', uploadsPath);
+    logger.debug('Uploads directory path:', uploadsPath);
 
     // Debug: Check if the uploads directory exists
     fs.access(uploadsPath, fs.constants.F_OK, (err) => {
         if (err) {
-            console.error('Uploads directory does not exist:', err);
+            logger.error('Uploads directory does not exist:', err);
         } else {
-            console.log('Uploads directory exists');
+            logger.debug('Uploads directory exists');
         }
     });
 
@@ -93,14 +93,14 @@ const watchReplayFiles = async () => {
         await scanForNewReplayFiles(uploadsPath);
     }, 5000);
 
-    console.log('Watching for new replay files...');
+    logger.info('Watching for new replay files...');
 };
 
 mongoose.connect(endpoint.MongoUri)
     .then(() => {
-        console.log('Connected to MongoDB');
+        logger.info('Connected to MongoDB');
         watchReplayFiles();
     })
     .catch((error) => {
-        console.error('Error connecting to MongoDB:', error);
+        logger.error('Error connecting to MongoDB:', error);
     });

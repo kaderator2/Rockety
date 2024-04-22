@@ -5,6 +5,7 @@ import User, { IUser } from '../models/user';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import nodemailer from 'nodemailer';
+import { logger } from '../logger'
 import endpoint from '../endpoints.config';
 
 const router = express.Router();
@@ -47,7 +48,7 @@ router.post('/register', async (req, res) => {
 
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
-        console.error('Error registering user:', error);
+        logger.error('Error registering user:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

@@ -1,6 +1,7 @@
 // src/middleware/auth.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { logger } from '../logger'
 import endpoint from '../endpoints.config';
 
 export interface AuthRequest extends Request {
@@ -19,6 +20,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
         req.userId = decoded.userId;
         next();
     } catch (error) {
+        logger.warn(`Unauthorized user attempting to access protected route!`);
         res.status(401).json({ message: 'Invalid token' });
     }
 };
