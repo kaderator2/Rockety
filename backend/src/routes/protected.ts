@@ -58,19 +58,19 @@ router.post('/upload', authMiddleware, upload.array('replays'), async (req: Auth
             processed: false,
         }));
 
+        // Check if there are any duplicate files
+        // const duplicateFiles = replayFiles.filter(file => file.mimetype === 'application/octet-stream');
+
+        // TODO: Fix this?
+        // if (duplicateFiles.length > 0) {
+        //     return res.status(400).json({
+        //         message: 'Duplicate files detected',
+        //         duplicates: duplicateFiles.map(file => file.originalname),
+        //     });
+        // }
+
         // Add the new replay files to the user's replays array
         await User.findByIdAndUpdate(userId, { $push: { replays: { $each: newReplayFiles } } });
-
-        // Check if there are any duplicate files
-        const duplicateFiles = replayFiles.filter(file => file.mimetype === 'application/octet-stream');
-
-        if (duplicateFiles.length > 0) {
-            return res.status(400).json({
-                message: 'Duplicate files detected',
-                duplicates: duplicateFiles.map(file => file.originalname),
-            });
-        }
-
         res.json({ message: 'Replays uploaded successfully' });
     } catch (error) {
         logger.error('Error uploading replays:', error);

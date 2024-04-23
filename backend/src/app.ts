@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/auth';
 import protectedRoutes from './routes/protected';
 import userRoutes from './routes/userRoutes';
+import analysisRoutes from './routes/analysisRoutes';
 import path from 'path';
 import { logger } from './logger'
 require('dotenv').config()
@@ -36,6 +37,8 @@ app.use('/api', protectedRoutes);
 
 // User routes
 app.use('/api', userRoutes);
+
+app.use('/api', analysisRoutes);
 
 // Serve the frontend React application
 app.use(express.static(path.join(__dirname, '..', '..', 'stat-app', 'build')));

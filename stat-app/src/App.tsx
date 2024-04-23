@@ -14,6 +14,7 @@ import CreateAccount from './components/CreateAccount';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import AccountPage from './components/AccountPage';
+import AnalysisPage from './components/AnalysisPage';
 
 const AppContainer = styled.div`
   display: flex;
@@ -43,6 +44,7 @@ const App: React.FC = () => {
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/account" element={<AccountPage />} />
+                    <Route path="/analysis" element={<AnalysisPage />} />
                     <Route path="*" element={<div />} />
                     {/* Add other routes */}
                 </Routes>
