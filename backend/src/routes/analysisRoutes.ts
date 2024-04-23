@@ -17,12 +17,16 @@ router.post('/analysis', authMiddleware, async (req: AuthenticatedRequest, res) 
 
         const user = await User.findById(userId);
         if (!user) {
+            logger.debug('cant find user!');
             return res.status(404).json({ message: 'User not found' });
         }
 
+        logger.debug('selecting replays');
         const selectedReplays = user.replays.filter((replay) => replayIds.includes(replay.id));
+        logger.debug('generating report');
         const analysisResult = generateAnalysisReport(selectedReplays);
 
+        logger.debug('sending result');
         res.json(analysisResult);
     } catch (error) {
         logger.error('Error generating analysis report:', error);
@@ -35,24 +39,30 @@ const generateAnalysisReport = (replays: ReplayFile[]) => {
     const playerAssists: { [key: string]: number } = {};
     const playerSaves: { [key: string]: number } = {};
     const timeline: { gameId: string; time: number; player: string; type: string }[] = [];
+    logger.debug('set all constants');
 
     replays.forEach((replay) => {
-        if (replay.data) {
-            replay.data.replay.properties.PlayerStats.forEach((playerStat) => {
-                const playerName = playerStat.Name;
-                if (playerName in playerGoals) {
-                    playerGoals[playerName] += playerStat.Goals;
-                    playerAssists[playerName] += playerStat.Assists;
-                    playerSaves[playerName] += playerStat.Saves;
-                } else {
-                    playerGoals[playerName] = playerStat.Goals;
-                    playerAssists[playerName] = playerStat.Assists;
-                    playerSaves[playerName] = playerStat.Saves;
-                }
-            });
+        logger.debug('looping through replays!');
+        if (replay.data && replay.data.replay) {
+            if (replay.data.replay.properties) {
+                replay.data.replay.properties.PlayerStats.forEach((playerStat) => {
+                    const playerName = playerStat.Name;
+                    logger.debug('got player name');
+                    if (playerName in playerGoals) {
+                        playerGoals[playerName] += playerStat.Goals;
+                        playerAssists[playerName] += playerStat.Assists;
+                        playerSaves[playerName] += playerStat.Saves;
+                    } else {
+                        playerGoals[playerName] = playerStat.Goals;
+                        playerAssists[playerName] = playerStat.Assists;
+                        playerSaves[playerName] = playerStat.Saves;
+                    }
+                    logger.debug('updated player stats');
+                });
 
-            if (replay.data.replay && replay.data.replay.properties) {
+                logger.debug('moving on!');
                 const gameId = replay.data.replay.properties.Id;
+                logger.debug('got game id');
                 replay.data.replay.properties.Goals.forEach((goal) => {
                     timeline.push({
                         gameId,
@@ -61,9 +71,10 @@ const generateAnalysisReport = (replays: ReplayFile[]) => {
                         type: 'Goal',
                     });
                 });
+                logger.debug('pushed stats');
             }
-
-            // Add more events to the timeline (saves, demolitions, etc.)
+        } else {
+            logger.warn('Replay data or replay object is missing:', replay);
         }
     });
 

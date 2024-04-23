@@ -13,7 +13,6 @@ import {
     ErrorMessage,
     SuccessMessage,
 } from './StyledComponents';
-axios.defaults.baseURL = "http://localhost:5000/";
 
 const ForgotPassword: React.FC = () => {
     const [email, setEmail] = useState('');

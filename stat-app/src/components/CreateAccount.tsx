@@ -13,7 +13,6 @@ import {
     LoginButton,
     ErrorMessage,
 } from './StyledComponents';
-axios.defaults.baseURL = "http://localhost:5000/";
 
 const LoginLink = styled(Link)`
   color: #63b3ed;

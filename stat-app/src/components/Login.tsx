@@ -15,8 +15,6 @@ import {
     ErrorMessage,
 } from './StyledComponents';
 
-axios.defaults.baseURL = "http://localhost:5000/";
-
 interface LoginProps {
     onLogin: (token: string) => void;
 }
