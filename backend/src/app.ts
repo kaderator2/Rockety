@@ -6,9 +6,10 @@ import userRoutes from './routes/userRoutes';
 import analysisRoutes from './routes/analysisRoutes';
 import path from 'path';
 import { logger } from './logger'
-require('dotenv').config()
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') })
 
 import endpoint from './endpoints.config';
+
 
 //const cors = require('cors');
 const app = express();
@@ -16,6 +17,9 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+logger.info(endpoint.Port);
+logger.info(process.env.IP_ADDRESS ?? '');
+logger.info(path.resolve(__dirname, '../.env'));
 logger.info('Starting Server');
 // MongoDB connection
 mongoose.connect(endpoint.MongoUri)

@@ -6,7 +6,7 @@ import { logger } from './src/logger'
 import mongoose from 'mongoose';
 import User, { IUser } from './src/models/user';
 import { ReplayData } from './src/models/replayFile';
-require('dotenv').config()
+require('dotenv').config({ path: path.resolve(__dirname, '/.env') })
 import endpoint from './src/endpoints.config';
 
 const execAsync = promisify(exec);
