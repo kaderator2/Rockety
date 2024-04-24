@@ -28,13 +28,7 @@ const AboutPage: React.FC = () => {
                 <Title>About Rockety</Title>
                 <AboutSection>
                     <Paragraph>
-                        The purpose of this website, a project sponsored by the University of Arizona's Department of Esports, is to enhance the Rocket League community's engagement and skill through detailed replay analysis and data visualization and provide much-needed stats for us to use.
-                    </Paragraph>
-                    <Paragraph>
-                        As a paid project, it also serves as a practical learning experience to refine my programming abilities, emphasizing the application of React and TypeScript in developing user-centric solutions.
-                    </Paragraph>
-                    <Paragraph>
-                        This project not only contributes to the esports community by providing valuable insights and fostering player development but also advances my expertise as a programmer, aligning with the University's commitment to diverse innovative education and esports excellence.
+                        The purpose of this website, a project sponsored by the University of Arizona's Esports Program, is to enhance the Rocket League community's engagement and skill through detailed replay analysis and data visualization and provide much-needed stats for us to use.
                     </Paragraph>
                     <Paragraph>
                         It also directly benefits the University of Arizona's Esports Program by allowing us to pull end-of-year stats to celebrate our player's achievements and keep our casters up to date on the latest information.

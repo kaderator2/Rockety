@@ -35,6 +35,17 @@ const CreateAccount: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Password validation
+        if (password.length < 8) {
+            setError('Password must be at least 8 characters long.');
+            return;
+        }
+
+        if (!/[^a-zA-Z]/.test(password)) {
+            setError('Password must contain at least one non-letter character.');
+            return;
+        }
+
         if (password !== confirmPassword) {
             setError('Passwords do not match');
             return;

@@ -34,6 +34,14 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        // Generate a unique username
+        let username = generateUsername(email);
+        let count = 1;
+        while (await User.findOne({ username })) {
+            username = generateUsername(email, count);
+            count++;
+        }
+
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -41,6 +49,7 @@ router.post('/register', async (req, res) => {
         const newUser: IUser = new User({
             email,
             password: hashedPassword,
+            username,
         });
 
         // Save the user to the database
@@ -52,6 +61,13 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+// Helper function to generate a username
+function generateUsername(email: string, count: number = 0): string {
+    const prefix = email.split('@')[0];
+    const username = count > 0 ? `${prefix}${count}` : prefix;
+    return username.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+}
 
 router.post('/login', loginLimiter, async (req, res) => {
     try {
