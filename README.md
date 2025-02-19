@@ -1,5 +1,5 @@
 # Rockety
-https://kadehdean.com/projects/rockety/
+![read the blog post here!](https://kadehdean.com/projects/rockety/)
 
 
 A React + Typescript website that allows users to upload and parse Rocket League replay files and view stats. insights, and much more! 
